@@ -7,8 +7,8 @@ export const Space = () => {
 
         const config = {
             type: Phaser.AUTO,
-            width: 1000,
-            height: 400,
+            width: window.innerWidth,
+            height: window.innerHeight,
             parent: "phaser-game",
             physics: {
                 default: "arcade",
@@ -19,6 +19,14 @@ export const Space = () => {
 
         const game = new Phaser.Game(config);
 
+        const handleResize = () => {
+            game.scale.resize(window.innerWidth, window.innerHeight);
+        };
+
+        // ✅ attach listener ONCE
+        window.addEventListener('resize', handleResize);
+
+
         function preload() {
             this.load.image("starfield", "/assets/space.jpg");
             this.load.image("ship", "/assets/ship.gif");
@@ -27,34 +35,40 @@ export const Space = () => {
         }
 
         function create() {
+            //CREATING MY GAME OVER DIALOG BOX
             backgroundBox = this.add.graphics();
-            backgroundBox.fillStyle(0x000000, 0.5);
-            backgroundBox.fillRoundedRect(300, 100, 400, 200, 20);
+            backgroundBox.fillStyle(0x000000, 0.5); //BG-color opacity
+            backgroundBox.fillRoundedRect(300, 100, 400, 200, 20); //x,y width, height, border-radius
             backgroundBox.setVisible(false);
             console.log("Background box created:", backgroundBox);
-            backgroundBox.setDepth(1);
+            backgroundBox.setDepth(1);//z-index
 
+            //SCROLL BG IN X-AXIS
+            bg = this.add.tileSprite(0, 0, this.cameras.main.width, this.cameras.main.height, "starfield").setOrigin(0, 0);
 
-            bg = this.add.tileSprite(0, 0, 1000, 400, "starfield").setOrigin(0, 0);
+            //PLAYS BG MUSIC
             bgMusic = this.sound.add("bgMusic", { loop: true, volume: 0.5 });
             bgMusic.play();
 
+            //ADD PLAYER SHIP SPRITE WITH PHYSICS
             ship = this.physics.add.image(200, this.sys.game.config.height / 2, "ship");
-            ship.setScale(0.2);
-            ship.body.setSize(ship.width * 0.3, ship.height * 0.3, true);
-            ship.setCollideWorldBounds(true);
+            ship.setScale(0.2);//scale down the size of the ship
+            ship.body.setSize(ship.width * 0.3, ship.height * 0.3, true);//Shrink the hitbox
+            ship.setCollideWorldBounds(true); //fill collision between the ship and the game canvas
 
+            //CAPTURES KEYBOARD ARROW KEY INPUT
             controls = this.input.keyboard.createCursorKeys();
-            obstacles = this.physics.add.group();
 
+            //CREATES A GROUP OF METEORS(OBSTACLES)
+            obstacles = this.physics.add.group();
             for (let i = 0; i < 6; i++) {
                 spawnMeteor(this);
             }
-
-            scoreText = this.add.text(16, 16, "Score🚀: 0", {
+            //DISPLAYS SCORE
+            scoreText = this.add.text(16, 16, `Score🚀: ${score}`, {
                 fill: "#fff", fontSize: '32px', fontFamily: 'Pixelify Sans, sans-serif', stroke: '#ff0000', strokeThickeness: 6
             });
-
+            // SCORE TIMER
             scoreTimer = this.time.addEvent({
                 delay: 100,
                 callback: () => {
@@ -64,13 +78,14 @@ export const Space = () => {
                 loop: true
             });
 
-            gameOverText = this.add.text(500, 150, 'Game Over', {
+            //GAME OVER AND TRY AGAIN LOGIC
+            gameOverText = this.add.text(this.cameras.main.width / 2, this.cameras.main.height / 2, 'Game Over', {
                 fontSize: '60px', fill: '#fff', fontFamily: 'Pixelify Sans, sans-serif'
-            }).setOrigin(0.5).setVisible(false).setDepth(2);
+            }).setOrigin(0.5, 0.5).setVisible(false).setDepth(2);
 
-            tryAgainButton = this.add.text(500,230, 'Try Again', {
+            tryAgainButton = this.add.text(500, 230, 'Try Again', {
                 fontSize: '32px', fill: '#ff0000', fontFamily: 'Pixelify Sans, sans-serif'
-            }).setOrigin(0.5).setInteractive().setVisible(false).setDepth(2);
+            }).setOrigin(0.5, 0.5).setInteractive().setVisible(false).setDepth(2);
 
             tryAgainButton.on('pointerover', () => {
                 tryAgainButton.setScale(1.1);
@@ -88,6 +103,7 @@ export const Space = () => {
                 tryAgainButton.setStyle({ fill: '#ff0000' });
             });
 
+            // Sets up collision detection between ship and meteors
             this.physics.add.collider(ship, obstacles, () => {
                 gameOver(this);
                 scoreTimer.remove();
@@ -109,9 +125,9 @@ export const Space = () => {
         }
 
         function update() {
-            bg.tilePositionX += 6;
+            bg.tilePositionX += 6; //value in px
             if (!ship || !controls) return;
-
+            //HANDLE CONTROLS
             if (controls.up.isDown) {
                 ship.setVelocityY(-500);
             } else if (controls.down.isDown) {
@@ -119,7 +135,7 @@ export const Space = () => {
             } else {
                 ship.setVelocityY(0);
             }
-
+            //LOOPING METEORS
             obstacles.children.iterate((meteor) => {
                 if (meteor.x < -50) {
                     meteor.x = Phaser.Math.Between(1000, 1400);
@@ -144,7 +160,10 @@ export const Space = () => {
             console.log("Game over triggered!");
         }
 
-        return () => game.destroy(true);
+        return () => {
+            game.destroy(true);
+            window.removeEventListener('resize', handleResize);  
+        }
     }, []);
 
     return (
