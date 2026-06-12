@@ -35,14 +35,10 @@ class screen extends Phaser.Scene {
     this.rightButton.setInteractive();
 
     this.leftButton.on("pointerdown", () => {
-      this.currentLane--;
+      this.currentLane -= 1;
     });
     this.rightButton.on("pointerdown", () => {
-      this.currentLane++;
-    });
-
-    this.rightButton.on("pointerdown", () => {
-      this.currentLane++;
+      this.currentLane += 1;
     });
     // Road
     this.road = this.add.rectangle(200, 300, roadWidth, roadHeight, 0x333333);
