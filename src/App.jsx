@@ -1,9 +1,10 @@
-import { Space } from "./Component/Space"
+// import { Space } from "./Component/Space"
+import GameCar from "./Component/Car";
 function App() {
   return (
     <>
-      <Space/>
+      <GameCar />
     </>
-  )
+  );
 }
-export default App
+export default App;

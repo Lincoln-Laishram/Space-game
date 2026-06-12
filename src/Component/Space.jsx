@@ -105,7 +105,7 @@ export const Space = () => {
 
             // Sets up collision detection between ship and meteors
             this.physics.add.collider(ship, obstacles, () => {
-                gameOver(this);
+                // gameOver(this);
                 scoreTimer.remove();
             });
         }
