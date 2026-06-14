@@ -1,9 +1,10 @@
 import Phaser from "phaser";
-
 const roadWidth = 300;
 const roadHeight = 600;
 const enemy_path_x = [100, 200, 300];
 const enemy_path_y = [-150, -250, -350];
+const coin_path_x = [100, 200, 300];
+const coin_path_y = [-250, -350, -450];
 class screen extends Phaser.Scene {
   constructor() {
     super("screen");
@@ -16,15 +17,29 @@ class screen extends Phaser.Scene {
       rect1.y + rect1.height / 2 > rect2.y - rect2.height / 2
     );
   }
+  //Score collision
+  scoreCollision(player, coin) {
+    return Phaser.Geom.Intersects.RectangleToRectangle(
+      player.getBounds(),
+      coin.getBounds(),
+    );
+  }
   create() {
-    this.enemy_speed = 10;
+    this.enemy_speed = 5;
+    this.score = 0;
     this.time.addEvent({
-      delay: 6000,
+      delay: 8000,
       callback: () => {
         this.enemy_speed += 1;
       },
       loop: true,
     });
+    //Score
+    this.scoreText = this.add.text(150, 20, `Score: ${this.score}`, {
+      fontSize: "30px",
+      color: "#ffffff",
+    });
+    this.scoreText.setDepth(999);
     //Controller -- mObile and Tablet
     this.leftButton = this.add.rectangle(40, 550, 80, 80, 0x555555);
     this.leftButton.setStrokeStyle(2, 0xffffff);
@@ -43,6 +58,25 @@ class screen extends Phaser.Scene {
     // Road
     this.road = this.add.rectangle(200, 300, roadWidth, roadHeight, 0x333333);
     this.road.setStrokeStyle(2, 0xffffff);
+    //Score Coin
+    this.coin1 = this.add.circle(
+      coin_path_x[Math.floor(Math.random() * coin_path_x.length)],
+      coin_path_y[Math.floor(Math.random() * coin_path_y.length)],
+      15,
+      0xffff00,
+    );
+    this.coin2 = this.add.circle(
+      coin_path_x[Math.floor(Math.random() * coin_path_x.length)],
+      coin_path_y[Math.floor(Math.random() * coin_path_y.length)],
+      15,
+      0xffff00,
+    );
+    this.coin3 = this.add.circle(
+      coin_path_x[Math.floor(Math.random() * coin_path_x.length)],
+      coin_path_y[Math.floor(Math.random() * coin_path_y.length)],
+      15,
+      0xffff00,
+    );
     //Enemy
     this.enemy1 = this.add.rectangle(
       enemy_path_x[Math.floor(Math.random() * enemy_path_x.length)],
@@ -111,6 +145,29 @@ class screen extends Phaser.Scene {
       }
       return;
     }
+    //Movement --coins
+    this.coin1.y += this.enemy_speed;
+    if (this.coin1.y > 600) {
+      this.coin1.y =
+        coin_path_y[Math.floor(Math.random() * coin_path_y.length)];
+      this.coin1.x =
+        coin_path_x[Math.floor(Math.random() * coin_path_x.length)];
+    }
+    this.coin2.y += this.enemy_speed;
+    if (this.coin2.y > 600) {
+      this.coin2.y =
+        coin_path_y[Math.floor(Math.random() * coin_path_y.length)];
+      this.coin2.x =
+        coin_path_x[Math.floor(Math.random() * coin_path_x.length)];
+    }
+    this.coin3.y += this.enemy_speed;
+    if (this.coin3.y > 600) {
+      this.coin3.y =
+        coin_path_y[Math.floor(Math.random() * coin_path_y.length)];
+      this.coin3.x =
+        coin_path_x[Math.floor(Math.random() * coin_path_x.length)];
+    }
+
     //Movement --enemies
     this.enemy1.y += this.enemy_speed;
     if (this.enemy1.y > 550) {
@@ -140,7 +197,8 @@ class screen extends Phaser.Scene {
     if (this.currentLane > this.lanes.length - 1) {
       this.currentLane = this.lanes.length - 1;
     }
-    //Collision
+    // Collision
+    //1. Enemy
     if (this.checkCollision(this.player, this.enemy1)) {
       this.player.fillColor = 0xffff00;
       this.isGameOver = true;
@@ -159,6 +217,20 @@ class screen extends Phaser.Scene {
       this.gameOverText.setVisible(false);
       this.gameOverPanel.setVisible(false);
       this.instruction.setVisible(false);
+    }
+    //2. Score
+    if (this.scoreCollision(this.player, this.coin1)) {
+      this.score += 1;
+      this.coin1.y = -200;
+      this.scoreText.setText(`Score: ${this.score}`);
+    } else if (this.scoreCollision(this.player, this.coin2)) {
+      this.score += 1;
+      this.coin2.y = -200;
+      this.scoreText.setText(`Score: ${this.score}`);
+    } else if (this.scoreCollision(this.player, this.coin3)) {
+      this.score += 1;
+      this.coin3.y = -200;
+      this.scoreText.setText(`Score: ${this.score}`);
     }
     //Game Restart
     if (this.isGameOver && Phaser.Input.Keyboard.JustDown(this.cursors.space)) {
