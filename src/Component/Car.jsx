@@ -6,7 +6,7 @@ export default function GameCar() {
   useEffect(() => {
     const config = {
       type: Phaser.AUTO,
-      width: window.innerWidth,
+      // width: window.innerWidth,
       height:window.innerHeight,
       backgroundColor: "#510C0C",
       scene: [screen],
