@@ -82,7 +82,7 @@ class screen extends Phaser.Scene {
       enemy_path_x[Math.floor(Math.random() * enemy_path_x.length)],
       enemy_path_y[Math.floor(Math.random() * enemy_path_y.length)],
       40,
-      40,
+      40, 
       0xff0000,
     );
     this.enemy1.setStrokeStyle(2, 0xffffff);

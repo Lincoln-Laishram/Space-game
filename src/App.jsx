@@ -1,9 +1,11 @@
 // import { Space } from "./Component/Space"
-import GameCar from "./Component/Car";
+// import GameCar from "./Component/Car";
+import Shoot from "./Component/Shoot";
 function App() {
   return (
     <>
-      <GameCar />
+      {/* <GameCar /> */}
+      <Shoot />
     </>
   );
 }
